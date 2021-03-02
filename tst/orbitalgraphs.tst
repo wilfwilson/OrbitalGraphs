@@ -2,6 +2,19 @@
 gap> START_TEST("OrbitalGraphs package: orbitalgraphs.tst");
 gap> LoadPackage("orbitalgraphs", false);;
 
+# Issue 19
+gap> graphs := OrbitalGraphs(Group([(3,4), (5,6)]));;
+gap> Length(graphs);
+14
+gap> ForAll(graphs, D -> DigraphVertices(D) = [1 .. 6]);
+true
+gap> List(graphs, DigraphNrEdges);
+[ 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4 ]
+gap> ForAny(graphs, D -> IsDigraphEdge(D, [5, 3]));
+true
+gap> ForAny(graphs, D -> IsDigraphEdge(D, [3, 5]));
+true
+
 # S50product: disjoint S50 x C2 x C2 x S50 x C2 x C2 x D8 on [3 .. 114]
 gap> S50product := Group(
 > [ ( 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,
