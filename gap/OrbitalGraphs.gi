@@ -1,18 +1,16 @@
 #
-# OrbitalGraphs: Computations with Orbital Graphs
+# OrbitalGraphs: Computations with orbital graphs
 #
 # Implementations
 #
 
-# The code below is essentially stolen from ferret;
-#       Do we want to give a naive version that
-#       just computes all orbital graphs, one that only
-#       gives a representative in the isomorphism class,
-#       and a version that gives the ones actually used in
-#       backtrack?
+# The code below was originally essentially stolen from ferret.
+# Do we want to give different versions of this:
+#   a naive version that just computes all orbital graphs,
+#   a version that only gives a representative in the isomorphism class, and
+#   a version that gives the ones actually used in backtrack?
 #
-InstallMethod( OrbitalGraphs, "for a permutation group"
-             , [ IsPermGroup ],
+InstallMethod(OrbitalGraphs, "for a permutation group", [IsPermGroup],
 function(G)
     local orb, orbitsG, iorb, graph, graphlist, val, p, i, orbsizes,
           orbpos, innerorblist, orbitsizes, iggestOrbit, skippedOneLargeOrbit,
@@ -79,58 +77,43 @@ function(G)
     return MakeImmutable(graphlist);
 end);
 
-InstallMethod( OrbitalClosure, "for a permutation group",
-               [ IsPermGroup ],
-G -> Intersection(List(OrbitalGraphs(G), AutomorphismGroup)) );
+InstallMethod(OrbitalClosure, "for a permutation group", [IsPermGroup],
+G -> Intersection(List(OrbitalGraphs(G), AutomorphismGroup)));
 # TODO: TwoClosure as implemented by Heiko Theißen requires the group
 #       to be transitive.
 # H := TwoClosure(G);
 
-InstallMethod( IsOrbitalGraphRecognisable, "for a permutation group",
-               [ IsPermGroup ],
-function(G)
-    # it holds that G <= OrbitalClosure(G), hence
-    # testing for size is sufficient
-    return Size(OrbitalClosure(G)) = Size(G);
-end);
+InstallMethod(OrbitalIndex, "for a permutation group", [IsPermGroup],
+{G} -> Index(OrbitalClosure(G), G));
 
-InstallTrueMethod(IsOrbitalGraphRecognisable,
-                  IsStronglyOrbitalGraphRecognisable);
+InstallMethod(IsOrbitalGraphRecognisable, "for a permutation group",
+[IsPermGroup],
+# It holds that G <= OrbitalClosure(G), hence testing for size is sufficient
+{G} -> Size(OrbitalClosure(G)) = Size(G));
 
-InstallMethod( OrbitalIndex, "for a permutation group",
-               [ IsPermGroup ],
-function(G)
-    return Index(OrbitalClosure(G), G);
-end);
+InstallMethod(IsStronglyOrbitalGraphRecognisable, "for a permutation group",
+[IsPermGroup],
+# TODO check that this is right
+{G} -> ForAny(OrbitalGraphs(G), x -> Size(G) = Size(AutomorphismGroup(x))));
 
-InstallMethod( IsStronglyOrbitalGraphRecognisable, "for a permutation group",
-               [ IsPermGroup ],
-function(G)
-    # TODO check that this is right.
-    return ForAny(OrbitalGraphs(G), x -> Size(G) = Size(AutomorphismGroup(x)));
-end);
+InstallMethod(IsAbsolutelyOrbitalGraphRecognisable, "for a permutation group",
+[IsPermGroup],
+# TODO check that this is right.
+{G} -> ForAll(OrbitalGraphs(G), x -> Size(G) = Size(AutomorphismGroup(x))));
 
 InstallTrueMethod(IsStronglyOrbitalGraphRecognisable,
                   IsAbsolutelyOrbitalGraphRecognisable);
-
-InstallMethod( IsAbsolutelyOrbitalGraphRecognisable, "for a permutation group",
-               [ IsPermGroup ],
-function(G)
-    # TODO check that this is right.
-    return ForAll(OrbitalGraphs(G), x -> Size(G) = Size(AutomorphismGroup(x)));
-end);
-
+InstallTrueMethod(IsOrbitalGraphRecognisable,
+                  IsStronglyOrbitalGraphRecognisable);
 
 # Transformation Semigroups
 
-InstallMethod( OrbitalGraphs, "for a transformation semigroup",
-[ IsTransformationSemigroup ],
+InstallMethod(OrbitalGraphs, "for a transformation semigroup",
+[IsTransformationSemigroup],
 function(S)
-    # TODO: This is currently super-naive
+    # FIXME This is currently super-naive
     local bpts;
 
     bpts := Arrangements([1..LargestMovedPoint(S)], 2);
     return List(bpts, x -> DigraphByEdges(AsList(Enumerate(Orb(S, x, OnTuples)))));
 end);
-
-
