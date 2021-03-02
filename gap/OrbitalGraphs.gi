@@ -37,27 +37,14 @@ function(G)
 
   graphlist := [];
   orbitsG := Orbits(G, [1..maxval]);
-
-  orbsizes := [];
-  orbpos := [];
-
-  # Efficently store size of orbits of values
-  for orb in [1..Length(orbitsG)] do
-    for i in orbitsG[orb] do
-      orbsizes[i] := Size(orbitsG[orb]);
-      orbpos[i] := orb;
-    od;
-  od;
-
   innerorblist := List(orbitsG, o -> Orbits(Stabilizer(G, o[1]), [1..LargestMovedPoint(G)]));
-  orbitsizes := List([1..Length(orbitsG)], x -> List(innerorblist[x], y -> Size(orbitsG[x]) * Size(y)));
 
-  for i in [1..Size(orbitsG)] do
+  for i in [1..Length(orbitsG)] do
     orb := orbitsG[i];
     orbreps := [];
 
     for iorb in innerorblist[i] do
-      if not(orb[1] = iorb[1] and Size(iorb) = 1) then
+      if orb[1] <> iorb[1] then
         graph := List([1..LargestMovedPoint(G)], x -> []);
         if IsEmpty(orbreps) then
           orbreps := fillRepElts(G, orb);
@@ -66,12 +53,11 @@ function(G)
           p := orbreps[val];
           graph[val] := List(iorb, x -> x ^ p);
         od;
-        Add(graphlist, Digraph(graph));
+        AddSet(graphlist, Digraph(graph));
       fi;
     od;
   od;
-  Sort(graphlist);
-  return MakeImmutable(graphlist);
+  return graphlist;
 end);
 
 InstallMethod(OrbitalClosure, "for a permutation group", [IsPermGroup],
